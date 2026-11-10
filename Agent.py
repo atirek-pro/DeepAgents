@@ -2,11 +2,11 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+from deepagents import RubricMiddleware
 from deepagents import create_deep_agent
 from deepagents.backends import FilesystemBackend
 
 from langgraph.checkpoint.memory import MemorySaver
-from deepagents.backends.utils import create_file_data
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
@@ -15,6 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent
 ROOT_DIR = BASE_DIR
 
 REQUIREMENTS_DIR = ROOT_DIR / "requirements"
+RUBRIC_PATH = BASE_DIR / "Rubric.md"
 OUTPUT_DIR = ROOT_DIR / "output"
 SKILLS_DIR = ROOT_DIR / "skills"
 MEMORY_FILE = ROOT_DIR / "Agents.md"
@@ -29,6 +30,11 @@ if not MEMORY_FILE.is_file():
     raise FileNotFoundError(
         f"Memory instructions not found: {MEMORY_FILE}"
     )
+
+if not RUBRIC_PATH.is_file():
+    raise FileNotFoundError(f"Rubric file not found: {RUBRIC_PATH}")
+
+rubric_text = RUBRIC_PATH.read_text(encoding="utf-8")
 
 SKILL_FILE = (
     SKILLS_DIR
@@ -98,7 +104,11 @@ The task is complete only after the report has been saved and
 its contents have been verified against the applicable instructions.
 """
 
-
+rubric_middleware = RubricMiddleware(
+    model=llm,
+    system_prompt="Evaluate the report against every rubric criterion.",
+    max_iterations=3,
+)
 
 agent = create_deep_agent(
     model=llm,
@@ -106,6 +116,7 @@ agent = create_deep_agent(
     backend=FilesystemBackend(root_dir=ROOT_DIR, virtual_mode=True),
     memory=["Agents.md"],
     skills=["/skills/"],
+    middleware=[rubric_middleware],
     checkpointer=MemorySaver()
 )
 
@@ -114,7 +125,7 @@ graph = agent.get_graph()
 
 # Save graph as PNG
 png_data = graph.draw_mermaid_png()
-output_path = Path(__file__).resolve().parent / "agent_with_FileSystemBackend.png"
+output_path = Path(__file__).resolve().parent / "agent_with_rubric.png"
 output_path.write_bytes(png_data)
 print(f"Agent graph saved at: {output_path}")
 
@@ -163,7 +174,8 @@ response = agent.invoke(
                 "role": "user",
                 "content": content
             }
-        ]
+        ],
+        "rubric": rubric_text
     },
     config={"configurable": {"thread_id": "demo-1"}}
 )
