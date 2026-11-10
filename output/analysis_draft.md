@@ -1,32 +1,38 @@
 # Requirements Analysis
 
 ## Confirmed Facts
-- Users shall be able to upload files to their profile.
-- Uploaded files should be stored securely.
-- The system should support common file types.
+- The requirement is for "User Profile File Upload".
+- Users shall be able to upload files to their profile. (mandatory: "shall")
+- Uploaded files should be stored securely. (recommended/unclear priority: "should")
+- The system should support common file types. (recommended/unclear priority: "should")
 
 ## Ambiguities
 - **"Users shall be able to upload files to their profile."**
-  Reason: It's unclear what "files" refers to (e.g., size limits, number of files, types of files beyond "common file types").
+  Reason: [Business] "profile" is an ambiguous scope; it's unclear what specific section or data within a user's profile this refers to. [Technical] There are no stated limits on file size, number of files, or whether existing files can be overwritten or appended.
 - **"Uploaded files should be stored securely."**
-  Reason: "Securely" is subjective and not quantifiable. It doesn't specify the level of security, encryption standards, access controls, or compliance requirements.
+  Reason: [Security] "securely" is a vague quality adjective; it lacks measurable standards or thresholds (e.g., encryption at rest, access control, malware scanning, compliance standards). [Business] "should" indicates unclear priority; it's not explicitly mandatory.
 - **"The system should support common file types."**
-  Reason: "Common file types" is vague. It doesn't list which specific file types are considered common (e.g., .pdf, .jpg, .doc, .zip, .mp4).
+  Reason: [Technical] "common file types" is an unbounded set; the exact list of supported file types is not specified. [Business] "should" indicates unclear priority; it's not explicitly mandatory.
 
 ## Clarification Questions
-- What are the maximum file size limits for uploads?
-- Is there a limit to the number of files a user can upload?
-- What specific security standards or compliance requirements must the file storage meet (e.g., encryption at rest/in transit, access control mechanisms, data retention policies)?
-- What are the exact "common file types" that the system should support?
-- Are there any restrictions on file content (e.g., executable files, malicious content)?
-- How should file uploads be handled in terms of user interface and experience (e.g., drag-and-drop, progress indicators)?
+- Q1: What specific section or data within a user's profile will files be uploaded to?
+- Q2: What is the maximum file size allowed for uploads?
+- Q3: Is there a limit to the number of files a user can upload to their profile?
+- Q4: What is the expected behavior when a user uploads a file with the same name as an existing file (e.g., overwrite, rename, error)?
+- Q5: Which specific security controls are mandatory for stored files (e.g., encryption at rest, virus scanning, access control, compliance standards like GDPR/HIPAA)?
+- Q6: Is secure storage a mandatory requirement ("shall") or a recommended one ("should")?
+- Q7: What is the exact list of file types that the system should support (e.g., .jpg, .png, .pdf, .doc, .mp4)?
+- Q8: Is supporting common file types a mandatory requirement ("shall") or a recommended one ("should")?
 
 ## Assumptions
-- Users can upload a reasonable number of files, each up to a moderate size (e.g., 10MB).
-- File storage will use standard cloud storage security features (e.g., AWS S3 encryption) without specific advanced compliance requirements.
-- "Common file types" include widely used document, image, and possibly video formats (e.g., PDF, JPG, PNG, DOCX, MP4).
-- There are no specific restrictions on file content beyond what typical file upload services enforce (e.g., basic virus scanning).
-- The user interface for file upload will be a basic file selection dialog.
+- (Q1) Files will be uploaded to a generic "Files" section within the user's profile, accessible only by the user.
+- (Q2) The maximum file size for uploads is 10MB.
+- (Q3) There is no explicit limit to the number of files a user can upload, but a reasonable system-wide storage limit will be enforced.
+- (Q4) Uploading a file with the same name as an existing file will result in the new file overwriting the old one.
+- (Q5) Files will be encrypted at rest and in transit, and basic access control will be implemented to ensure only the owning user can access their files. Malware scanning will not be implemented initially.
+- (Q6) Secure storage is a mandatory requirement, despite the "should" in the document.
+- (Q7) The system will support common image types (.jpg, .png, .gif) and PDF documents (.pdf).
+- (Q8) Supporting common file types is a mandatory requirement, despite the "should" in the document.
 
 ## Summary
-The requirement outlines the need for users to upload files to their profiles, with an emphasis on secure storage and support for common file types. However, the document lacks specific details regarding file size limits, the definition of "securely," and an explicit list of "common file types," which could lead to varied interpretations during development. Further clarification is needed to ensure a robust and well-defined implementation.
+This requirement outlines the need for users to upload files to their profile, with an emphasis on secure storage and support for common file types. The document is under-specified regarding the scope of "profile," file limits, specific security controls, and the exact list of "common file types." Development can proceed with the stated assumptions, but answers to the clarification questions are needed to mitigate risks and ensure alignment with stakeholder expectations. Ready with assumptions.
